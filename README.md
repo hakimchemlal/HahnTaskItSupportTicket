@@ -85,4 +85,4 @@ Once the application is running, you can access the API documentation at:
 
 ## Frontend Application
 
-The frontend implementation of this system is built with Java Swing and can be found in [this repository]([URL_OF_YOUR_FRONTEND_REPO](https://github.com/hakimchemlal/HahnTaskTicketSwing)).
+The frontend implementation of this system is built with Java Swing and can be found in [this repository]([https://github.com/hakimchemlal/HahnTaskTicketSwing]).

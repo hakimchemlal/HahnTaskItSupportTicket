@@ -4,6 +4,7 @@ import com.hahn.system.hahnitsupport.entity.*;
 import com.hahn.system.hahnitsupport.service.TicketService;
 import com.hahn.system.hahnitsupport.repository.EmployeeRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ public class TicketController {
     }
 
     // Création d'un ticket (accessible aux Employees)
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @PostMapping
     public Ticket createTicket(@RequestBody Ticket ticket, @AuthenticationPrincipal User userDetails) {
         Employee employee = employeeRepository.findByUsername(userDetails.getUsername())
@@ -31,6 +33,7 @@ public class TicketController {
     }
 
     // Consultation de ses propres tickets
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @GetMapping("/my")
     public List<Ticket> getMyTickets(@AuthenticationPrincipal User userDetails) {
         Employee employee = employeeRepository.findByUsername(userDetails.getUsername())
@@ -39,19 +42,21 @@ public class TicketController {
     }
 
     // Consultation de tous les tickets (accessible à IT Support)
+    @PreAuthorize("hasRole('ROLE_IT_SUPPORT')")
     @GetMapping("/all")
     public List<Ticket> getAllTickets() {
         return ticketService.getAllTickets();
     }
 
-    // Consultation d'un ticket par son ID
+    /*// Consultation d'un ticket par son ID
     @GetMapping("/{id}")
     public Ticket getTicketById(@PathVariable Long id) {
         return ticketService.getTicketById(id);
-    }
+    }*/
 
     // Recherche par ID ou par statut
     @GetMapping("/search")
+    @PreAuthorize("hasRole('ROLE_IT_SUPPORT') or hasRole('ROLE_EMPLOYEE')")
     public List<Ticket> searchTickets(@RequestParam(required = false) Long ticketId,
                                       @RequestParam(required = false) Status status) {
         if (ticketId != null) {
@@ -64,6 +69,7 @@ public class TicketController {
     }
 
     // Mise à jour du statut d'un ticket (accessible à IT Support)
+    @PreAuthorize("hasRole('ROLE_IT_SUPPORT')")
     @PutMapping("/{id}/status")
     public Ticket updateTicketStatus(@PathVariable Long id,
                                      @RequestParam Status newStatus,
@@ -73,7 +79,8 @@ public class TicketController {
         return ticketService.updateTicketStatus(id, newStatus, employee);
     }
 
-    // Ajout d'un commentaire (accessible à IT Support)
+    /*// Ajout d'un commentaire (accessible à IT Support)
+    @PreAuthorize("hasRole('ROLE_IT_SUPPORT')")
     @PostMapping("/{id}/comments")
     public Ticket addComment(@PathVariable Long id,
                              @RequestParam String comment,
@@ -81,9 +88,10 @@ public class TicketController {
         Employee employee = employeeRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
         return ticketService.addComment(id, comment, employee);
-    }
+    }*/
 
     @PostMapping("/add/{ticketId}/comments")
+    @PreAuthorize("hasRole('ROLE_IT_SUPPORT')")
     public ResponseEntity<Ticket> addComment(@PathVariable Long ticketId,
                                              @RequestBody String comment) {
         try {
@@ -98,6 +106,7 @@ public class TicketController {
     }
 
     @GetMapping("/ticket/{ticketId}")
+    @PreAuthorize("hasRole('ROLE_IT_SUPPORT') or hasRole('ROLE_EMPLOYEE')")
     public ResponseEntity<List<Comment>> getCommentsByTicketId(@PathVariable Long ticketId) {
         List<Comment> comments = ticketService.getCommentsByTicketId(ticketId);
         return ResponseEntity.ok(comments);

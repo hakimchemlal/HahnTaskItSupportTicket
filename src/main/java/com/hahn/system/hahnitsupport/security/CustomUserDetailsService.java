@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+//Interface Spring Security pour charger les détails des utilisateurs(Essentielle pour l'authentification personnalisée)
 @Service
 @Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
@@ -21,6 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.employeeRepository = employeeRepository;
     }
 
+    // Cette méthode est appelée par Spring Security lors de l'authentification
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Employee user = employeeRepository.findByUsername(username)
